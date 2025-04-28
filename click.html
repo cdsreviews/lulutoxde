@@ -22,13 +22,13 @@
         const decodedScCid = safeDecode(scCid);
 
         // 动态生成URL，插入scCid作为s5的值
-        const url = `https://nmttrack.com/?a=146518&c=407829&co=194328&mt=28s5=${encodeURIComponent(decodedScCid)}`;
+        const url = `https://nmttrack.com/?a=146518&c=407790&co=194328&mt=28s5=${encodeURIComponent(decodedScCid)}`;
 
         // 重定向到构造的URL
         window.location.href = url;
     } else {
         // 如果scCid不存在，使用默认的URL
-        const defaultUrl = 'https://nmttrack.com/?a=146518&c=407829&co=194328&mt=28&s5=default'; // 替换为你想要的默认URL
+        const defaultUrl = 'https://nmttrack.com/?a=146518&c=407790&co=194328&mt=288&s5=default'; // 替换为你想要的默认URL
         window.location.href = defaultUrl;
     }
 </script>
