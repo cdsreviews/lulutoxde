@@ -1,0 +1,34 @@
+<script type="text/javascript">
+    // 从localStorage获取ScCid
+    const scCid = localStorage.getItem('sc_cid');
+
+    // 解码函数，防止编码导致的乱码
+    function safeDecode(value) {
+        try {
+            const once = decodeURIComponent(value);
+            const twice = decodeURIComponent(once);
+            return twice;
+        } catch (e) {
+            try {
+                return decodeURIComponent(value);
+            } catch (err) {
+                return value;
+            }
+        }
+    }
+
+    // 检查scCid是否存在，并解码
+    if (scCid) {
+        const decodedScCid = safeDecode(scCid);
+
+        // 动态生成URL，插入scCid作为s5的值
+        const url = `https://nmttrack.com/?a=146518&c=407829&co=194328&mt=28s5=${encodeURIComponent(decodedScCid)}`;
+
+        // 重定向到构造的URL
+        window.location.href = url;
+    } else {
+        // 如果scCid不存在，使用默认的URL
+        const defaultUrl = 'https://nmttrack.com/?a=146518&c=407829&co=194328&mt=28&s5=default'; // 替换为你想要的默认URL
+        window.location.href = defaultUrl;
+    }
+</script>
