@@ -1,18 +1,15 @@
+<!-- 放在需要跳转的页面 -->
 <script>
     (function () {
-        const urlParams = new URLSearchParams(window.location.search);
+        // 只读取 localStorage
+        const gclid = localStorage.getItem('gclid') || '0';
+        const fbclid = localStorage.getItem('fbclid') || '0';
+        const scCid = localStorage.getItem('sc_cid') || '0';
+        const utmTerm = localStorage.getItem('utm_term') || '0';
 
-        // 从 URL 或 localStorage 获取参数，若都没有则用 "0"
-        const gclid = urlParams.get('gclid') || localStorage.getItem('gclid') || '0';
-        const fbclid = urlParams.get('fbclid') || localStorage.getItem('fbclid') || '0';
-        const utmTerm = urlParams.get('utm_term') || localStorage.getItem('utm_term') || '0';
+        // 选择一个存在的 ID：gclid > fbclid > ScCid
+        const trackingId = gclid !== '0' ? gclid : fbclid !== '0' ? fbclid : scCid;
 
-        // 保存当前参数到 localStorage
-        localStorage.setItem('gclid', gclid);
-        localStorage.setItem('fbclid', fbclid);
-        localStorage.setItem('utm_term', utmTerm);
-
-        // 构建跳转 URL
         const baseUrl = 'https://nmttrack.com/';
         const params = new URLSearchParams({
             a: '146518',
@@ -23,16 +20,15 @@
             s2: 'XHD',
             s3: 'AW-17028711680/YkwnCLnF-74aEICK9rc_',
             s4: 'lulutoxde.vercel.app',
-            s5: gclid !== '0' ? gclid : fbclid !== '0' ? fbclid : '0',
+            s5: trackingId || '0',
             utm_term: utmTerm
         });
 
-        // 最终跳转地址
-        const redirectUrl = baseUrl + '?' + params.toString();
+        const finalUrl = baseUrl + '?' + params.toString();
 
-        // 避免重复跳转
+        // 避免在目标域重复跳转
         if (!window.location.href.includes('nmttrack.com')) {
-            window.location.href = redirectUrl;
+            window.location.href = finalUrl;
         }
     })();
 </script>
