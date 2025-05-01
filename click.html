@@ -1,55 +1,38 @@
 <script>
     (function () {
         const urlParams = new URLSearchParams(window.location.search);
-        const gclid = urlParams.get('gclid');
-        const fbclid = urlParams.get('fbclid');
-        const utmTerm = urlParams.get('utm_term');
 
-        // 读取或保存到 localStorage
-        if (gclid) localStorage.setItem('gclid', gclid);
-        if (fbclid) localStorage.setItem('fbclid', fbclid);
-        if (utmTerm) localStorage.setItem('utm_term', utmTerm);
+        // 从 URL 或 localStorage 获取参数，若都没有则用 "0"
+        const gclid = urlParams.get('gclid') || localStorage.getItem('gclid') || '0';
+        const fbclid = urlParams.get('fbclid') || localStorage.getItem('fbclid') || '0';
+        const utmTerm = urlParams.get('utm_term') || localStorage.getItem('utm_term') || '0';
 
-        const storedGclid = localStorage.getItem('gclid');
-        const storedFbclid = localStorage.getItem('fbclid');
-        const storedUtmTerm = localStorage.getItem('utm_term');
+        // 保存当前参数到 localStorage
+        localStorage.setItem('gclid', gclid);
+        localStorage.setItem('fbclid', fbclid);
+        localStorage.setItem('utm_term', utmTerm);
 
-        // 如果当前 URL 没有这些参数，但 localStorage 有，刷新页面添加它们
-        if (!gclid && !fbclid && !utmTerm && (storedGclid || storedFbclid || storedUtmTerm)) {
-            const params = new URLSearchParams();
-            if (storedGclid) params.set('gclid', storedGclid);
-            if (storedFbclid) params.set('fbclid', storedFbclid);
-            if (storedUtmTerm) params.set('utm_term', storedUtmTerm);
+        // 构建跳转 URL
+        const baseUrl = 'https://nmttrack.com/';
+        const params = new URLSearchParams({
+            a: '146518',
+            c: '407790',
+            co: '194328',
+            mt: '19',
+            s1: 'FB',
+            s2: 'XHD',
+            s3: 'AW-17028711680/YkwnCLnF-74aEICK9rc_',
+            s4: 'lulutoxde.vercel.app',
+            s5: gclid !== '0' ? gclid : fbclid !== '0' ? fbclid : '0',
+            utm_term: utmTerm
+        });
 
-            const newUrl = window.location.origin + window.location.pathname + '?' + params.toString();
-            // 防止跳转死循环
-            if (window.location.href !== newUrl) {
-                window.location.href = newUrl;
-                return;
-            }
-        }
+        // 最终跳转地址
+        const redirectUrl = baseUrl + '?' + params.toString();
 
-        // 构建重定向 URL
-        if (storedGclid || storedFbclid || storedUtmTerm) {
-            const baseUrl = 'https://nmttrack.com/';
-            const baseParams = new URLSearchParams({
-                a: '146518',
-                c: '407790',
-                co: '194328',
-                mt: '19',
-                s1: 'FB',
-                s2: 'XHD',
-                s3: 'AW-17028711680/YkwnCLnF-74aEICK9rc_',
-                s4: 'lulutoxde.vercel.app',
-            });
-
-            // s5 优先用 gclid，其次 fbclid
-            const trackingId = storedGclid || storedFbclid;
-            if (trackingId) baseParams.set('s5', trackingId);
-            if (storedUtmTerm) baseParams.set('utm_term', storedUtmTerm);
-
-            const finalUrl = baseUrl + '?' + baseParams.toString();
-            window.location.href = finalUrl;
+        // 避免重复跳转
+        if (!window.location.href.includes('nmttrack.com')) {
+            window.location.href = redirectUrl;
         }
     })();
 </script>
