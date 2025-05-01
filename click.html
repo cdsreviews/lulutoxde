@@ -1,44 +1,55 @@
 <script>
     (function () {
         const urlParams = new URLSearchParams(window.location.search);
-        const gclid = urlParams.get('gclid') || localStorage.getItem('gclid');
-        const fbclid = urlParams.get('fbclid') || localStorage.getItem('fbclid');
-        const utmTerm = urlParams.get('utm_term') || localStorage.getItem('utm_term');
+        const gclid = urlParams.get('gclid');
+        const fbclid = urlParams.get('fbclid');
+        const utmTerm = urlParams.get('utm_term');
 
-        // 保存参数到 localStorage（如果在 URL 中出现）
-        if (urlParams.get('gclid')) localStorage.setItem('gclid', gclid);
-        if (urlParams.get('fbclid')) localStorage.setItem('fbclid', fbclid);
-        if (urlParams.get('utm_term')) localStorage.setItem('utm_term', utmTerm);
+        // 读取或保存到 localStorage
+        if (gclid) localStorage.setItem('gclid', gclid);
+        if (fbclid) localStorage.setItem('fbclid', fbclid);
+        if (utmTerm) localStorage.setItem('utm_term', utmTerm);
 
-        // 如果 URL 中没有参数但 localStorage 中有，刷新页面拼接参数
-        if (!urlParams.has('gclid') && !urlParams.has('fbclid') && !urlParams.has('utm_term') && (gclid || fbclid || utmTerm)) {
-            const newParams = [];
-            if (gclid) newParams.push('gclid=' + encodeURIComponent(gclid));
-            if (fbclid) newParams.push('fbclid=' + encodeURIComponent(fbclid));
-            if (utmTerm) newParams.push('utm_term=' + encodeURIComponent(utmTerm));
+        const storedGclid = localStorage.getItem('gclid');
+        const storedFbclid = localStorage.getItem('fbclid');
+        const storedUtmTerm = localStorage.getItem('utm_term');
 
-            const newUrl = window.location.origin + window.location.pathname + '?' + newParams.join('&');
-            window.location.href = newUrl;
-            return;
+        // 如果当前 URL 没有这些参数，但 localStorage 有，刷新页面添加它们
+        if (!gclid && !fbclid && !utmTerm && (storedGclid || storedFbclid || storedUtmTerm)) {
+            const params = new URLSearchParams();
+            if (storedGclid) params.set('gclid', storedGclid);
+            if (storedFbclid) params.set('fbclid', storedFbclid);
+            if (storedUtmTerm) params.set('utm_term', storedUtmTerm);
+
+            const newUrl = window.location.origin + window.location.pathname + '?' + params.toString();
+            // 防止跳转死循环
+            if (window.location.href !== newUrl) {
+                window.location.href = newUrl;
+                return;
+            }
         }
 
         // 构建重定向 URL
-        if (gclid || fbclid || utmTerm) {
-            const baseUrl = 'https://nmttrack.com/?a=146518&c=407790&co=194328&mt=19&s1=FB&s2=XHD&s3=AW-17028711680/YkwnCLnF-74aEICK9rc_&s4=lulutoxde.vercel.app';
-            const redirectParams = [];
+        if (storedGclid || storedFbclid || storedUtmTerm) {
+            const baseUrl = 'https://nmttrack.com/';
+            const baseParams = new URLSearchParams({
+                a: '146518',
+                c: '407790',
+                co: '194328',
+                mt: '19',
+                s1: 'FB',
+                s2: 'XHD',
+                s3: 'AW-17028711680/YkwnCLnF-74aEICK9rc_',
+                s4: 'lulutoxde.vercel.app',
+            });
 
-            // 优先使用 gclid，如果没有就使用 fbclid 作为 s5 的值
-            const trackingId = gclid || fbclid;
-            if (trackingId) {
-                redirectParams.push('s5=' + encodeURIComponent(trackingId));
-            }
+            // s5 优先用 gclid，其次 fbclid
+            const trackingId = storedGclid || storedFbclid;
+            if (trackingId) baseParams.set('s5', trackingId);
+            if (storedUtmTerm) baseParams.set('utm_term', storedUtmTerm);
 
-            if (utmTerm) {
-                redirectParams.push('utm_term=' + encodeURIComponent(utmTerm));
-            }
-
-            const redirectUrl = baseUrl + '&' + redirectParams.join('&');
-            window.location.href = redirectUrl;
+            const finalUrl = baseUrl + '?' + baseParams.toString();
+            window.location.href = finalUrl;
         }
     })();
 </script>
