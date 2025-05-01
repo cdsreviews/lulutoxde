@@ -1,34 +1,44 @@
-<script type="text/javascript">
-    // 从localStorage获取ScCid
-    const scCid = localStorage.getItem('sc_cid');
+<script>
+    (function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const gclid = urlParams.get('gclid') || localStorage.getItem('gclid');
+        const fbclid = urlParams.get('fbclid') || localStorage.getItem('fbclid');
+        const utmTerm = urlParams.get('utm_term') || localStorage.getItem('utm_term');
 
-    // 解码函数，防止编码导致的乱码
-    function safeDecode(value) {
-        try {
-            const once = decodeURIComponent(value);
-            const twice = decodeURIComponent(once);
-            return twice;
-        } catch (e) {
-            try {
-                return decodeURIComponent(value);
-            } catch (err) {
-                return value;
-            }
+        // 保存参数到 localStorage（如果在 URL 中出现）
+        if (urlParams.get('gclid')) localStorage.setItem('gclid', gclid);
+        if (urlParams.get('fbclid')) localStorage.setItem('fbclid', fbclid);
+        if (urlParams.get('utm_term')) localStorage.setItem('utm_term', utmTerm);
+
+        // 如果 URL 中没有参数但 localStorage 中有，刷新页面拼接参数
+        if (!urlParams.has('gclid') && !urlParams.has('fbclid') && !urlParams.has('utm_term') && (gclid || fbclid || utmTerm)) {
+            const newParams = [];
+            if (gclid) newParams.push('gclid=' + encodeURIComponent(gclid));
+            if (fbclid) newParams.push('fbclid=' + encodeURIComponent(fbclid));
+            if (utmTerm) newParams.push('utm_term=' + encodeURIComponent(utmTerm));
+
+            const newUrl = window.location.origin + window.location.pathname + '?' + newParams.join('&');
+            window.location.href = newUrl;
+            return;
         }
-    }
 
-    // 检查scCid是否存在，并解码
-    if (scCid) {
-        const decodedScCid = safeDecode(scCid);
+        // 构建重定向 URL
+        if (gclid || fbclid || utmTerm) {
+            const baseUrl = 'https://nmttrack.com/?a=146518&c=407790&co=194328&mt=19&s1=FB&s2=XHD&s3=AW-17028711680/YkwnCLnF-74aEICK9rc_&s4=lulutoxde.vercel.app';
+            const redirectParams = [];
 
-        // 动态生成URL，插入scCid作为s5的值
-        const url = `https://nmttrack.com/?a=146518&c=407790&co=194328&mt=28s5=${encodeURIComponent(decodedScCid)}`;
+            // 优先使用 gclid，如果没有就使用 fbclid 作为 s5 的值
+            const trackingId = gclid || fbclid;
+            if (trackingId) {
+                redirectParams.push('s5=' + encodeURIComponent(trackingId));
+            }
 
-        // 重定向到构造的URL
-        window.location.href = url;
-    } else {
-        // 如果scCid不存在，使用默认的URL
-        const defaultUrl = 'https://nmttrack.com/?a=146518&c=407790&co=194328&mt=288&s5=default'; // 替换为你想要的默认URL
-        window.location.href = defaultUrl;
-    }
+            if (utmTerm) {
+                redirectParams.push('utm_term=' + encodeURIComponent(utmTerm));
+            }
+
+            const redirectUrl = baseUrl + '&' + redirectParams.join('&');
+            window.location.href = redirectUrl;
+        }
+    })();
 </script>
